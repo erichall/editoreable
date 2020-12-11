@@ -7,7 +7,14 @@
 
 (defn render
   []
-  (rd/render [editor] (interop/get-element-by-id "app")))
+  (rd/render
+    [:div {:style {
+                   :display         "flex"
+                   :margin-top      "200px"
+                   :align-items     "center"
+                   :justify-content "center"}}
+     [editor {:style {:min-width "500px"}}]]
+    (interop/get-element-by-id "app")))
 
 (defn init! []
   (render))

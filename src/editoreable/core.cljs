@@ -1337,10 +1337,9 @@
   (let [hover-atom (r/atom nil)]
     (fn []
       (let [hover (deref hover-atom)]
-        [:div {:style {:padding         "5px"
-                       :padding-left    "10px"
-                       :border          "1px dashed green"
-                       :width           "100%"
+        [:div {:style {:width           "100%"
+                       :border-bottom   "2px solid rgb(33, 150, 243, .8)"
+                       :height          "40px"
                        :display         "flex"
                        :justify-content "space-around"
                        :align-items     "center"}}
@@ -1408,7 +1407,6 @@
                 :on-mouse-leave (fn [] (reset! hover-atom nil))
                 :on-click       (fn [evt]
                                   (.preventDefault evt)
-                                  (println " THE FUCKING FUCK?? " (get-in state [:config :expanded?]))
                                   (if (get-in state [:config :expanded?])
                                     (trigger-event :collapse-config)
                                     (trigger-event :expand-config)))
@@ -1573,10 +1571,8 @@
 (defn config-bar
   [{:keys [config trigger-event]}]
   (let [expanded? (:expanded? config)]
-    (println "expand " expanded?)
     [:div {:style {:position "relative"}}
-     [:div {:style {:border           "1px dashed orange"
-                    :background-color "#f9f9f9"
+     [:div {:style {:background-color "#f9f9f9"
                     :box-shadow       "-5px 4px 5px rgba(126, 126, 126, 0.55)"
                     :padding          (if expanded? "1em 0.5em 2em 1em" 0)
                     :z-index          5
@@ -1627,12 +1623,14 @@
                                                                                :editor-area   (-> @refs-atom :editor-area)
                                                                                })]
                                      (reset! resize-atom [observer (-> @refs-atom :editor-area)]))))
-       :reagent-render         (fn []
+       :reagent-render         (fn [{:keys [style]}]
                                  (let [{:keys [buffer selections char-width cursor keys-down] :as state} (get-state editor-atom)
                                        current-row (y->row-index state (:y cursor))
                                        flatten-buffer (flatten buffer)]
-                                   [:div {:style    {:display        "flex"
-                                                     :flex-direction "column"}
+                                   [:div {:style    (merge {:display        "flex"
+                                                            :flex-direction "column"
+                                                            :box-shadow     "0 2px 8px rgba(0,0,0,.1), 0 0 6px rgba(0,0,0,.1)"}
+                                                           style)
                                           :on-click (fn [evt]
                                                       (let [target (-> evt .-target)
                                                             sbcf (interop/get-element-by-id "status-bar-config-toggler")
@@ -1658,6 +1656,7 @@
                                                      :max-height     "100px"
                                                      :display        "flex"
                                                      :overflow       "auto"
+                                                     :width          "100%"
                                                      :min-width      0 ;; required to shink below content
                                                      :flex-direction "row"}}
                                        [gutter {:state state :flatten-buffer flatten-buffer}]
@@ -1682,8 +1681,7 @@
                                               :on-click   (fn [] (focus! (interop/get-element-by-id "editor-input")))
                                               :draggable  false
                                               :userselect "none"
-                                              :style      {:border              "1px solid blue"
-                                                           :box-sizing          "border-box"
+                                              :style      {:box-sizing          "border-box"
                                                            :height              "100%"
                                                            :flex                1
                                                            :outline             "none"
@@ -1741,10 +1739,10 @@
                                       (when (get-in state [:config :show-status-bar])
                                         [:div {:style {:flex             1
                                                        :height           "20px"
-                                                       :border           "1px solid #e4e4e4"
                                                        :background-color "#f1f1f1"
                                                        :font-size        12
                                                        :display          "flex"
+                                                       :width            "100%"
                                                        :flex-direction   "row"
                                                        :justify-content  "space-around"}}
                                          [:span current-row " / " (x->char-pos state) " | " (count flatten-buffer)]
@@ -1752,7 +1750,6 @@
                                            [:div {:style    {:cursor "pointer"}
                                                   :id       :status-bar-config-toggler
                                                   :on-click (fn []
-                                                              (println "DDD" (get-in state [:config :expanded?]))
                                                               (if (get-in state [:config :expanded?])
                                                                 (trigger-event :collapse-config)
                                                                 (trigger-event :expand-config))
