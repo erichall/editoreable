@@ -1,0 +1,13 @@
+{:source-paths ["src"]
+ :dependencies [[org.clojure/core.async "0.4.500"]
+                [reagent "0.9.0"]]
+ :dev-http     {3449 "resources/public/"}
+ :builds       {:app  {:output-dir "resources/public/"
+                       :asset-path "."
+                       :target     :browser
+                       :modules    {:main {:init-fn editoreable.main/init!}}
+                       :devtools   {:after-load editoreable.main/reload!}}
+                :test {:target       :node-test
+                       :ns-regexp    "editoreable"
+                       :source-paths ["src"]
+                       :autorun      true}}}
