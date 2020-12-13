@@ -4,119 +4,46 @@
     [clojure.string :as s]
     [cljs.core.async :as async]
     [editoreable.interop :as interop]
-    [cljs.test :refer [deftest is]]))
+    [editoreable.icons :refer [undo-icon redo-icon insert-link-icon bold-icon italic-icon misc-icon]]
+    [cljs.test :refer [deftest is]]
+    )
+  )
 
-(defn undo-icon
-  []
-  [:svg {:height "24" :view-box "0 0 24 24" :width "24"}
-   [:path {:d "M0 0h24v24H0z", :fill "none"}]
-   [:path {:d "M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"}]])
-
-(defn redo-icon
-  []
-  [:svg {:height "24" :view-box "0 0 24 24" :width "24"}
-   [:path {:d "M0 0h24v24H0z", :fill "none"}]
-   [:path {:d "M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"}]])
-
-(defn insert-link-icon
-  []
-  [:svg {:height "24" :view-box "0 0 24 24" :width "24"}
-   [:path {:d "M0 0h24v24H0z", :fill "none"}]
-   [:path {:d "M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"}]])
-
-(defn bold-icon
-  []
-  [:svg {:height "24", :view-box "0 0 24 24", :width "24"}
-   [:path {:d "M0 0h24v24H0z" :fill "none"}]
-   [:path {:d "M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z"}]])
-
-(defn italic-icon
-  []
-  [:svg {:height "24" :view-box "0 0 24 24" :width "24"}
-   [:path {:d "M0 0h24v24H0z" :fill "none"}]
-   [:path {:d "M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"}]])
-
-(defn misc-icon
-  []
-  [:svg {:enable-background "new 0 0 24 24" :height "24" :view-box "0 0 24 24" :width "24"
-         :pointer-events    "none"}
-   [:g
-    [:rect {:fill "none" :height "24" :width "24"}]]
-   [:g
-    [:g
-     [:path {:d "M14.17,13.71l1.4-2.42c0.09-0.15,0.05-0.34-0.08-0.45l-1.48-1.16c0.03-0.22,0.05-0.45,0.05-0.68s-0.02-0.46-0.05-0.69 l1.48-1.16c0.13-0.11,0.17-0.3,0.08-0.45l-1.4-2.42c-0.09-0.15-0.27-0.21-0.43-0.15L12,4.83c-0.36-0.28-0.75-0.51-1.18-0.69 l-0.26-1.85C10.53,2.13,10.38,2,10.21,2h-2.8C7.24,2,7.09,2.13,7.06,2.3L6.8,4.15C6.38,4.33,5.98,4.56,5.62,4.84l-1.74-0.7 c-0.16-0.06-0.34,0-0.43,0.15l-1.4,2.42C1.96,6.86,2,7.05,2.13,7.16l1.48,1.16C3.58,8.54,3.56,8.77,3.56,9s0.02,0.46,0.05,0.69 l-1.48,1.16C2,10.96,1.96,11.15,2.05,11.3l1.4,2.42c0.09,0.15,0.27,0.21,0.43,0.15l1.74-0.7c0.36,0.28,0.75,0.51,1.18,0.69 l0.26,1.85C7.09,15.87,7.24,16,7.41,16h2.8c0.17,0,0.32-0.13,0.35-0.3l0.26-1.85c0.42-0.18,0.82-0.41,1.18-0.69l1.74,0.7 C13.9,13.92,14.08,13.86,14.17,13.71z M8.81,11c-1.1,0-2-0.9-2-2c0-1.1,0.9-2,2-2s2,0.9,2,2C10.81,10.1,9.91,11,8.81,11z"}]
-     [:path {:d "M21.92,18.67l-0.96-0.74c0.02-0.14,0.04-0.29,0.04-0.44c0-0.15-0.01-0.3-0.04-0.44l0.95-0.74 c0.08-0.07,0.11-0.19,0.05-0.29l-0.9-1.55c-0.05-0.1-0.17-0.13-0.28-0.1l-1.11,0.45c-0.23-0.18-0.48-0.33-0.76-0.44l-0.17-1.18 C18.73,13.08,18.63,13,18.53,13h-1.79c-0.11,0-0.21,0.08-0.22,0.19l-0.17,1.18c-0.27,0.12-0.53,0.26-0.76,0.44l-1.11-0.45 c-0.1-0.04-0.22,0-0.28,0.1l-0.9,1.55c-0.05,0.1-0.04,0.22,0.05,0.29l0.95,0.74c-0.02,0.14-0.03,0.29-0.03,0.44 c0,0.15,0.01,0.3,0.03,0.44l-0.95,0.74c-0.08,0.07-0.11,0.19-0.05,0.29l0.9,1.55c0.05,0.1,0.17,0.13,0.28,0.1l1.11-0.45 c0.23,0.18,0.48,0.33,0.76,0.44l0.17,1.18c0.02,0.11,0.11,0.19,0.22,0.19h1.79c0.11,0,0.21-0.08,0.22-0.19l0.17-1.18 c0.27-0.12,0.53-0.26,0.75-0.44l1.12,0.45c0.1,0.04,0.22,0,0.28-0.1l0.9-1.55C22.03,18.86,22,18.74,21.92,18.67z M17.63,18.83 c-0.74,0-1.35-0.6-1.35-1.35s0.6-1.35,1.35-1.35s1.35,0.6,1.35,1.35S18.37,18.83,17.63,18.83z"}]]]])
 
 (enable-console-print!)
-;; TODO
-;; [X]   handle when rows expands to multiple rows, can no longer use 21px as height... :~>
-;; [X]  handle selections for empty rows
-;; [X]  remove fetching row width and chars directly from the dom cus it messes up when removing chars..
-;;        we should fetch it from the buffer instead and keep a fixed char-width as a style maybe??
-;; [X]   Remove active-line and just get-it from cursor y pos?
-;; [X]   it seems to be impossible to rely on pre-line word wrapping since you are not able
-;;      to place the cursor on the invisible \n char that is not shown when wrapping..
-;;      I guess we have to roll back to manually dealing with rows, I guess we are better prepared this time
-;; [] fix the toolbar
-;; [X] fix the gutter with row numbers
-;; [X] fix copy
-;; [X] fix cut
-;; [X] fix paste
-;; [X] fix so when you copy you don't type in c or v
-;; [X] hide the active row if selection is present
-;; [X] disable caret flashing while typing?
-;; [X] fix when right clicking on selection so it still active
-;; [X] add all different keys
-;; [X] refactor select rows
-;; [X] fix scrolling when clicking on a row
-;; [X] fix relative mouse cords for rows numbers and textarea, its brooooken
-;; [X] Think of something better to separate cursor movement from the rest of the jazz, and especially something
-;;    that does not involve coordinates and offsetting with a dam gutter......
-;; [X] add scrolling when cursor moves
-;; [X] fix bug when copy empty rows, the \n seems to no follow
-;; [X] fix when cut whole row, the row should not collapse
-;; [X] fix undo
-;; [X] fix delete selections on backspace
-;; [X] fix double click and triple click to select stuff
-;; [] fix cursor movement when cut, should end up on last on that row i guess
-;; [X] refactor into new cursor handling
-;; [X] fix bug when pressing enter
-;; [] fix adjust fontsize
-;; [] fix e2e tests
-;; [X] fix row/line indicator for the cursor position
-;; [] lose the coupling between editor width and char-width somehow?
 
 (defonce editor-atom (r/atom nil))
 (def initial-state
-  {:states      [{:buffer      "a\nThis is a editor\nwith text!\na\n.\n\n\nhejsan\n"
-                  :should-undo false
-                  :should-redo false
-                  :editable    true
-                  :key-delay   30
-                  :selections  []
-                  :cursor      {:x        0
-                                :y        0
-                                :x-screen 0
-                                :y-screen 0
-                                :max-x    nil}
-                  :mouse       {:is-down false
-                                :start   {:x 0 :x-screen 0 :y 0 :y-screen 0}
-                                :end     {:x 0 :x-screen 0 :y 0 :y-screen 0}}
-                  :char-width  nil                          ; must measure this......
-                  :styles      {:line-height  21            ; https://grtcalculator.com/
-                                :font-size    16
-                                :editor-width nil}
-                  :config      {:expanded?           false
-                                :show-gutter         true
-                                :show-line-numbers   true
-                                :show-status-bar     true
-                                :show-toolbar        true
-                                :cursor-width        1
-                                :cursor-color        "orange"
-                                :cursor-opacity      0.3
-                                :selection-color     "#B5D5FF"
-                                :active-row-bg-color "#ecece7"
-                                }}]
+  {:states      [{:buffer           "a\nThis is a editor\nwith text!\na\n.\n\n\nhejsan\n"
+                  :should-undo      false
+                  :should-redo      false
+                  :editable         true
+                  :key-delay        30
+                  :selections       []
+                  :cursor           {:x        0
+                                     :y        0
+                                     :x-screen 0
+                                     :y-screen 0
+                                     :max-x    nil}
+                  :mouse            {:is-down false
+                                     :start   {:x 0 :x-screen 0 :y 0 :y-screen 0}
+                                     :end     {:x 0 :x-screen 0 :y 0 :y-screen 0}}
+                  :char-width       nil                     ; must measure this......
+                  :styles           {:line-height  21       ; https://grtcalculator.com/
+                                     :font-size    16
+                                     :editor-width nil}
+                  :injected-styles? false
+                  :config           {:expanded?           false
+                                     :show-gutter         true
+                                     :show-line-numbers   true
+                                     :show-status-bar     true
+                                     :show-toolbar        true
+                                     :cursor-width        1
+                                     :cursor-color        "orange"
+                                     :cursor-opacity      0.3
+                                     :selection-color     "#B5D5FF"
+                                     :active-row-bg-color "#ecece7"
+                                     }}]
    :undo-states []
    })
 
@@ -158,15 +85,15 @@
       :states
       last))
 
-;; TODO REMOVE??
-(declare cursor->index
-         set-cursor-at-index
-         mutate!)
-
 (when-not @editor-atom
-  (reset! editor-atom initial-state))
+  (reset! editor-atom initial-state)
 
-
+  (add-watch editor-atom
+             :on-text-change
+             (fn [_ _ old-state new-state]
+               (when-not (= (:buffer (get-state old-state)) (:buffer (get-state new-state)))
+                 (println "txt change")
+                 ))))
 
 (defn txt->buffer
   "
@@ -209,6 +136,10 @@
 (defn font-size
   [{:keys [styles]}]
   (:font-size styles))
+
+(defn get-config
+  [{:keys [config]} p]
+  (get-in config (if (vector? p) p [p])))
 
 (defn line-max-chars
   ([{:keys [char-width] :as state}]
@@ -568,60 +499,6 @@
     {:removed-txt (s/trim (s/join "\n" removed-txt))
      :buffer      new-buffer}))
 
-(defn insert-text-in-buffer
-  "Insert text into buffer, replaces \t with spaces."
-  [{:keys [cursor buffer char-width] :as state} txt]
-  (let [txt (tab->space txt)
-        [by bx] (->>
-                  (y->row-index state (:y cursor))
-                  (y->buffer-cord buffer))
-        [f & rest] (s/split txt #"\n" 2)
-        row (get-in buffer [by bx])
-        max-chars (dec (line-max-chars state))
-        char-pos (x->char-pos state)
-        first-of-row (subs row 0 char-pos)
-        rest-of-row (subs row char-pos (count row))
-        new-row (str first-of-row f (if (some? rest) "" rest-of-row)) ;; if no new lines, insert rest of row here
-        line-group (->> (assoc (get-in state [:buffer by]) bx new-row)
-                        (partition-buffer-row max-chars))
-        more-to-insert (when (some? rest)
-                         (->> (txt->buffer (first rest) char-width (editor-width state))
-                              ((fn [b]
-                                 (if rest-of-row
-                                   (let [last-line-group (->> (str (last (last b)) rest-of-row) ;; if new lines, insert rest of row last in the new buffer
-                                                              (partition-buffer-row max-chars))]
-                                     (assoc-in b [(dec (count b))] (into [] (concat (butlast (last b)) last-line-group))))
-                                   b)))))
-
-        next-state (->
-                     (assoc-in state [:buffer by] (if (empty? line-group) [""] line-group))
-                     (assoc :selections [])
-                     (#(if (some? more-to-insert)
-                         (insert-rows-at % (inc by) more-to-insert)
-                         %)))]
-    (set-cursor-at-index next-state (+ (cursor->index next-state)
-                                       (diff-buffer-len (:buffer next-state) (:buffer state))))))
-
-(defn has-selections?
-  [selections]
-  (> (count selections) 0))
-
-(defn selections->txt
-  [{:keys [selections] :as state}]
-  (loop [s-string nil
-         prev-by nil
-         selections selections]
-    (if (empty? selections)
-      s-string
-      (let [[by bx start end] (:buffer-cord (first selections))
-            s (-> (get-in state [:buffer by bx])
-                  (subs start end))]
-        (recur (str s-string (if (= prev-by by) s (if (nil? s-string) s (str "\n" s))))
-               by
-               (rest selections))))))
-
-
-
 (defn cursor->index
   "Returns the 1d index where the cursor is in the buffer.
   the index is a zero-indexed integer indicating where
@@ -712,6 +589,64 @@
           (let [[x y] done]
             (set-cursor state (char-pos->px state x) (y-row->px state y)))
           (recur (rest bf) (+ n-chars bf-chars) (+ rows bf-rows)))))))
+
+(defn insert-text-in-buffer
+  "Insert text into buffer, replaces \t with spaces."
+  [{:keys [cursor buffer char-width] :as state} txt]
+  (let [txt (tab->space txt)
+        [by bx] (->>
+                  (y->row-index state (:y cursor))
+                  (y->buffer-cord buffer))
+        [f & rest] (s/split txt #"\n" 2)
+        row (get-in buffer [by bx])
+        max-chars (dec (line-max-chars state))
+        char-pos (x->char-pos state)
+        first-of-row (subs row 0 char-pos)
+        rest-of-row (subs row char-pos (count row))
+        new-row (str first-of-row f (if (some? rest) "" rest-of-row)) ;; if no new lines, insert rest of row here
+        line-group (->> (assoc (get-in state [:buffer by]) bx new-row)
+                        (partition-buffer-row max-chars))
+        more-to-insert (when (some? rest)
+                         (->> (txt->buffer (first rest) char-width (editor-width state))
+                              ((fn [b]
+                                 (if rest-of-row
+                                   (let [last-line-group (->> (str (last (last b)) rest-of-row) ;; if new lines, insert rest of row last in the new buffer
+                                                              (partition-buffer-row max-chars))]
+                                     (assoc-in b [(dec (count b))] (into [] (concat (butlast (last b)) last-line-group))))
+                                   b)))))
+
+        next-state (->
+                     (assoc-in state [:buffer by] (if (empty? line-group) [""] line-group))
+                     (assoc :selections [])
+                     (#(if (some? more-to-insert)
+                         (insert-rows-at % (inc by) more-to-insert)
+                         %)))]
+    (set-cursor-at-index next-state (+ (cursor->index next-state)
+                                       (diff-buffer-len (:buffer next-state) (:buffer state))))))
+
+(defn has-selections?
+  [selections]
+  (> (count selections) 0))
+
+(defn selections->txt
+  [{:keys [selections] :as state}]
+  (loop [s-string nil
+         prev-by nil
+         selections selections]
+    (if (empty? selections)
+      s-string
+      (let [[by bx start end] (:buffer-cord (first selections))
+            s (-> (get-in state [:buffer by bx])
+                  (subs start end))]
+        (recur (str s-string (if (= prev-by by) s (if (nil? s-string) s (str "\n" s))))
+               by
+               (rest selections))))))
+
+
+
+
+
+
 
 
 (defn remove-selection
@@ -1304,6 +1239,10 @@
      :toggle-status-bar (mutate! editor-atom toggle-config :show-status-bar)
      :toggle-toolbar (mutate! editor-atom toggle-config :show-toolbar)
 
+     :inject-styles (do (doseq [[id style] (:styles data)]
+                          (println "ID" id data)
+                          (interop/inject-style! id style))
+                        (mutate! editor-atom (fn [state] (assoc state :injected-styles? true))))
      :editor-area-resize (mutate! editor-atom process-resize data)
      (js/console.warn "Unable to handle event" name data)))
   ([name] (handle-event! name nil)))
@@ -1333,9 +1272,21 @@
                           :font-size           (str font-size "px")}}])))
 
 (defn toolbar
-  [{:keys [state trigger-event]}]
-  (let [hover-atom (r/atom nil)]
-    (fn []
+  []
+  (let [hover-atom (r/atom nil)
+        toolbar-item (fn [{:keys [name on-click icon]}]
+                       [:div {:id             name
+                              :on-mouse-over  (fn [] (reset! hover-atom name))
+                              :on-mouse-leave (fn [] (reset! hover-atom nil))
+                              :on-click       on-click
+                              :style          {:cursor      "pointer"
+                                               :margin-left "10px"
+                                               :height      "24px"
+                                               :opacity     (if (= @hover-atom :undo) 1 0.7)
+                                               :font-weight "bold"}}
+                        [icon]]
+                       )]
+    (fn [{:keys [state trigger-event]}]
       (let [hover (deref hover-atom)]
         [:div {:style {:width           "100%"
                        :border-bottom   "2px solid rgb(33, 150, 243, .8)"
@@ -1343,79 +1294,27 @@
                        :display         "flex"
                        :justify-content "space-around"
                        :align-items     "center"}}
-         [:div {:id             :undo
-                :on-mouse-over  (fn [] (reset! hover-atom :undo))
-                :on-mouse-leave (fn [] (reset! hover-atom nil))
-                :on-click       (fn [evt]
-                                  (.preventDefault evt)
-                                  (.stopPropagation evt)
-                                  (trigger-event :undo {}))
-                :style          {:cursor      "pointer"
-                                 :margin-left "10px"
-                                 :height      "24px"
-                                 :opacity     (if (= hover :undo) 1 0.7)
-                                 :font-weight "bold"}}
-          [undo-icon]]
-         [:div {:id             :redo
-                :on-mouse-over  (fn [] (reset! hover-atom :redo))
-                :on-mouse-leave (fn [] (reset! hover-atom nil))
-                :on-click       (fn [evt]
-                                  (.preventDefault evt)
-                                  (.stopPropagation evt)
-                                  (trigger-event :redo {}))
-                :style          {:cursor      "pointer"
-                                 :height      "24px"
-                                 :opacity     (if (= hover :redo) 1 0.7)
-                                 :font-weight "bold"}}
-          [redo-icon]]
-         [:div {:id             :bold
-                :on-mouse-over  (fn [] (reset! hover-atom :bold))
-                :on-mouse-leave (fn [] (reset! hover-atom nil))
-                :on-click       (fn [evt]
-                                  (.preventDefault evt)
-                                  (trigger-event :insert-txt {:txt "**strong text**"}))
-                :style          {:cursor      "pointer"
-                                 :height      "24px"
-                                 :opacity     (if (= hover :bold) 1 0.7)
-                                 :font-weight "bold"}}
-          [bold-icon]]
-         [:div {:id             :emp
-                :on-mouse-over  (fn [] (reset! hover-atom :emp))
-                :on-mouse-leave (fn [] (reset! hover-atom nil))
-                :on-click       (fn [evt]
-                                  (.preventDefault evt)
-                                  (trigger-event :insert-txt {:txt "*emphasized text*"}))
-                :style          {:cursor      "pointer"
-                                 :height      "24px"
-                                 :opacity     (if (= hover :emp) 1 0.7)
-                                 :font-weight "bold"}}
-          [italic-icon]]
-         [:div {:id             :link
-                :on-mouse-over  (fn [] (reset! hover-atom :link))
-                :on-mouse-leave (fn [] (reset! hover-atom nil))
-                :on-click       (fn [evt]
-                                  (.preventDefault evt)
-                                  (trigger-event :insert-txt {:txt "[enter link description here][https://]\n"}))
-                :style          {:cursor      "pointer"
-                                 :height      "24px"
-                                 :opacity     (if (= hover :link) 1 0.7)
-                                 :font-weight "bold"}}
-          [insert-link-icon]]
-         [:div {:id             :config-toggler
-                :class          :config-toggler
-                :on-mouse-over  (fn [] (reset! hover-atom :config-toggler))
-                :on-mouse-leave (fn [] (reset! hover-atom nil))
-                :on-click       (fn [evt]
-                                  (.preventDefault evt)
-                                  (if (get-in state [:config :expanded?])
-                                    (trigger-event :collapse-config)
-                                    (trigger-event :expand-config)))
-                :style          {:cursor      "pointer"
-                                 :height      "24px"
-                                 :opacity     (if (= hover :config-toggler) 1 0.7)
-                                 :font-weight "bold"}}
-          [misc-icon]]
-         ]))))
+         [toolbar-item {:name     :undo
+                        :on-click (fn [] (trigger-event :undo))
+                        :icon     undo-icon}]
+         [toolbar-item {:name     :redo
+                        :on-click (fn [] (trigger-event :redo))
+                        :icon     redo-icon}]
+         [toolbar-item {:name     :bold
+                        :on-click (fn [] (trigger-event :insert-txt {:txt "**strong text**"}))
+                        :icon     bold-icon}]
+         [toolbar-item {:name     :emp
+                        :on-click (fn [] (trigger-event :insert-txt {:txt "*emphasized text*"}))
+                        :icon     italic-icon}]
+         [toolbar-item {:name     :link
+                        :on-click (fn [] (trigger-event :insert-txt {:txt "[enter link description here][https://]\n"}))
+                        :icon     insert-link-icon}]
+         [toolbar-item {:name     :config-toggler
+                        :on-click (fn []
+                                    (if (get-in state [:config :expanded?])
+                                      (trigger-event :collapse-config)
+                                      (trigger-event :expand-config)))
+                        :icon     misc-icon}]]))))
 
 (defn gutter
   [{:keys [state flatten-buffer]}]
@@ -1560,16 +1459,17 @@
     char-width))
 
 (defn config-item
-  [{:keys [label toggle-fn]}]
+  [{:keys [label toggle-fn value]}]
   [:tr
    [:td label]
    [:td
-    [:input {:type     "checkbox"
-             :on-click (fn [] (toggle-fn))
-             }]]])
+    [:input {:type      "checkbox"
+             :checked   value
+             :on-change (fn []
+                          (toggle-fn))}]]])
 
 (defn config-bar
-  [{:keys [config trigger-event]}]
+  [{:keys [config trigger-event] :as state}]
   (let [expanded? (:expanded? config)]
     [:div {:style {:position "relative"}}
      [:div {:style {:background-color "#f9f9f9"
@@ -1580,21 +1480,39 @@
                     :position         "absolute"
                     :right            0
                     :overflow         "hidden"
-                    :transition       "width 0.3s, height 0.3s, padding 0.3s"
+                    :transition       "width 0.3s, height 0.2s, padding 0.3s"
                     :width            (if expanded? "200px" "0px")
                     :height           (if expanded? "200px" "0px")}
             :id    "config"}
       [:table {:style {:border-spacing "2px"}}
        [:tbody
         [config-item {:label     "Gutter"
+                      :value     (get-config state [:show-gutter])
                       :toggle-fn (fn [] (trigger-event :toggle-gutter))}]
         [config-item {:label     "Line numbers"
+                      :value     (get-config state [:show-line-numbers])
                       :toggle-fn (fn [] (trigger-event :toggle-line-numbers))}]
         [config-item {:label     "Status bar"
+                      :value     (get-config state [:show-status-bar])
                       :toggle-fn (fn [] (trigger-event :toggle-status-bar))}]
         [config-item {:label     "Toolbar"
+                      :value     (get-config state [:show-toolbar])
                       :toggle-fn (fn [] (trigger-event :toggle-toolbar))}]]]
       ]]))
+
+(defn caret
+  [{:keys [state current-row]}]
+  (let [{:keys [cursor keys-down]} state]
+    [:div {:id    "caret"
+           :style {:transform        (str "translate(" (:x cursor) "px," (* (line-height state) current-row) "px)") ;; TODO
+                   :animation        (when (empty? keys-down) "editoreable-blink-caret .75s step-end infinite")
+                   :opacity          (get-in state [:config :cursor-opacity])
+                   :display          "block"
+                   :background-color (get-in state [:config :cursor-color])
+                   :position         "absolute"
+                   :cursor           "text"
+                   :height           (str (line-height state) "px")
+                   :width            (str (get-in state [:config :cursor-width]) "px")}}]))
 
 (defn editor
   []
@@ -1603,14 +1521,23 @@
                          :editor-input nil})
         resize-atom (atom nil)
         set-editor-area-ref! (fn [com] (swap! refs-atom assoc :editor-area com))
-        set-editor-input-ref! (fn [com] (swap! refs-atom assoc :editor-input com))]
+        set-editor-input-ref! (fn [com] (swap! refs-atom assoc :editor-input com))
+
+        caret-style "@keyframes editoreable-blink-caret  { from, to { border-color: transparent } 50% { background-color: black; }}"]
+
+
     (r/create-class
       {:component-will-unmount (fn []
+
                                  (when-not (nil? @resize-atom)
                                    (let [[resize el] @resize-atom]
                                      (.unobserve resize el))))
        :component-did-mount    (fn []
                                  (let [state (get-state editor-atom)]
+
+                                   (when-not (and (:injected-styles? state) (interop/has-css-rule? "editoreable-blink-caret"))
+                                     (trigger-event :inject-styles {:styles [["editoreable-caret-animation" caret-style]]}))
+
                                    (when-not (:char-width state)
                                      (let [char-width (measure-char! state "a")
                                            {:keys [width]} (-> @refs-atom :editor-area interop/get-bounding-client-rect)]
@@ -1623,13 +1550,16 @@
                                                                                :editor-area   (-> @refs-atom :editor-area)
                                                                                })]
                                      (reset! resize-atom [observer (-> @refs-atom :editor-area)]))))
-       :reagent-render         (fn [{:keys [style]}]
+       :reagent-render         (fn [{:keys [style max-editor-height on-text-change]}]
                                  (let [{:keys [buffer selections char-width cursor keys-down] :as state} (get-state editor-atom)
                                        current-row (y->row-index state (:y cursor))
                                        flatten-buffer (flatten buffer)]
                                    [:div {:style    (merge {:display        "flex"
                                                             :flex-direction "column"
-                                                            :box-shadow     "0 2px 8px rgba(0,0,0,.1), 0 0 6px rgba(0,0,0,.1)"}
+                                                            ;:max-height "150px"
+                                                            :border         "1px solid black"
+                                                            :box-shadow     "0 2px 8px rgba(0,0,0,.1), 0 0 6px rgba(0,0,0,.1)"
+                                                            }
                                                            style)
                                           :on-click (fn [evt]
                                                       (let [target (-> evt .-target)
@@ -1647,17 +1577,17 @@
 
                                      [:div {:on-click (fn [] (focus! (interop/get-element-by-id "editor-input")))
                                             :style    {:position  "relative"
-                                                       :height    "100%"
-                                                       :min-width 0 ;; required to shink below content
+                                                       ;:height    "100%"
+                                                       :min-width 0 ;; required to shrink below content
                                                        :flex      5}}
 
                                       [:div {:id    :editor-container
                                              :style {:position       "relative"
-                                                     :max-height     "100px"
                                                      :display        "flex"
                                                      :overflow       "auto"
+                                                     :max-height     max-editor-height
                                                      :width          "100%"
-                                                     :min-width      0 ;; required to shink below content
+                                                     :min-width      0 ;; required to shrink below content
                                                      :flex-direction "row"}}
                                        [gutter {:state state :flatten-buffer flatten-buffer}]
                                        [:textarea {:id          "editor-input"
@@ -1693,19 +1623,10 @@
                                                            :font                "Monaco"
                                                            :font-family         "monospace"
                                                            :display             "relative"
-                                                           :min-width           0 ;; required to shink below content
+                                                           :min-width           0 ;; required to shrink below content
                                                            }}
                                         [active-row {:state state :current-row current-row}]
-                                        [:div {:id    "caret"
-                                               :style {:transform        (str "translate(" (:x cursor) "px," (* (line-height state) current-row) "px)") ;; TODO
-                                                       :animation        (when (empty? keys-down) "typing 3.5s steps(40, end), blink-caret .75s step-end infinite") ;; TODO remove css animation from index.html and move it in here
-                                                       :opacity          (get-in state [:config :cursor-opacity])
-                                                       :display          "block"
-                                                       :background-color (get-in state [:config :cursor-color])
-                                                       :position         "absolute"
-                                                       :cursor           "text"
-                                                       :height           (str (line-height state) "px")
-                                                       :width            (str (get-in state [:config :cursor-width]) "px")}}]
+                                        [caret {:state state :current-row current-row}]
                                         (when-not (empty? selections)
                                           [:div {:id         "selections"
                                                  :draggable  false
@@ -1744,7 +1665,7 @@
                                                        :display          "flex"
                                                        :width            "100%"
                                                        :flex-direction   "row"
-                                                       :justify-content  "space-around"}}
+                                                       :justify-content  "space-between"}}
                                          [:span current-row " / " (x->char-pos state) " | " (count flatten-buffer)]
                                          (when-not (get-in state [:config :show-toolbar])
                                            [:div {:style    {:cursor "pointer"}
@@ -1752,8 +1673,7 @@
                                                   :on-click (fn []
                                                               (if (get-in state [:config :expanded?])
                                                                 (trigger-event :collapse-config)
-                                                                (trigger-event :expand-config))
-                                                              )}
+                                                                (trigger-event :expand-config)))}
                                             [:span {:style {:pointer-events "none"}} "Config"]])
                                          ])]
                                      [config-bar {:config        (:config state)

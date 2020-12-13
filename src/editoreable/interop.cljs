@@ -99,3 +99,26 @@
 (defn scroll-by!
   [x y]
   (.scrollBy js/window x y))
+
+(defn inject-style!
+  [id style]
+  (let [styled-element (js/document.createElement "style")
+        text-node (js/document.createTextNode style)]
+    (do
+      (.setAttribute styled-element "id" id)
+      (.setAttribute styled-element "type" "text/css")
+      (.appendChild styled-element text-node)
+      (js/document.head.appendChild styled-element))))
+
+(defn has-css-rule?
+  [style-name]
+  (->> (.-styleSheets js/document)
+       js/Object.values
+       (map (fn [s] (->> (.-rules s)
+                         js/Object.values)))
+       js->clj
+       flatten
+       (filter (fn [a] (= style-name (.-name a))))
+       count
+       (#(> % 0))
+       ))
