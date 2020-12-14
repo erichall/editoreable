@@ -12,6 +12,7 @@
 
 (enable-console-print!)
 
+(def external-com-chan (async/chan))
 (defonce editor-atom (r/atom nil))
 (def initial-state
   {:states      [{:buffer           "a\nThis is a editor\nwith text!\na\n.\n\n\nhejsan\n"
@@ -63,9 +64,13 @@
        tab->space
        count))
 
+(deftest po00p
+  (is (= 4 2)))
+
 (defn diff-buffer-len
   "Diffs two buffers and return how much the length differs only."
   {:test (fn []
+           (is (= 2 3))
            (is (= (diff-buffer-len [["a"]] [[""]]) 1))
            (is (= (diff-buffer-len [[""]] [[""]]) 0))
            (is (= (diff-buffer-len [["1"]] [["1234" "5"]]) -5)))}
@@ -85,6 +90,12 @@
       :states
       last))
 
+(defn buffer->txt
+  [buffer]
+  (->> (flatten buffer)
+       (interpose "\n")
+       (s/join "")))
+
 (when-not @editor-atom
   (reset! editor-atom initial-state)
 
@@ -92,7 +103,8 @@
              :on-text-change
              (fn [_ _ old-state new-state]
                (when-not (= (:buffer (get-state old-state)) (:buffer (get-state new-state)))
-                 (println "txt change")
+                 (async/put! external-com-chan {:type :text-change
+                                                :text (buffer->txt (:buffer (get-state new-state)))})
                  ))))
 
 (defn txt->buffer
@@ -641,13 +653,6 @@
         (recur (str s-string (if (= prev-by by) s (if (nil? s-string) s (str "\n" s))))
                by
                (rest selections))))))
-
-
-
-
-
-
-
 
 (defn remove-selection
   "Remove text in the buffer by selection"
@@ -1390,7 +1395,7 @@
     [observe-chan observer]))
 
 (defn setup-listeners!
-  [{:keys [trigger-event state editor-input editor-area]}]
+  [{:keys [trigger-event state editor-input editor-area on-text-change]}]
   (let [chans (async/merge
                 [
                  (listen editor-input "keydown" false)
@@ -1400,6 +1405,12 @@
                  ])
         [resize-chan observer] (resize-observer editor-area)
         [command-in command-out] (batch-commands (:key-delay state))]
+
+    (async/go (loop []
+                (let [ev (async/<! external-com-chan)]
+                  (condp = (:type ev)
+                    :text-change (on-text-change (:text ev))))
+                (recur)))
     (async/go (loop []
                 (let [resizes (async/<! resize-chan)]
                   (doseq [r resizes]
@@ -1515,7 +1526,7 @@
                    :width            (str (get-in state [:config :cursor-width]) "px")}}]))
 
 (defn editor
-  []
+  [{:keys [on-text-change]}]
   (let [trigger-event handle-event!
         refs-atom (atom {:editor-area  nil
                          :editor-input nil})
@@ -1544,13 +1555,14 @@
                                        (trigger-event :measure {:char-width   char-width
                                                                 :editor-width width})))
 
-                                   (let [{:keys [observer]} (setup-listeners! {:state         state
-                                                                               :trigger-event trigger-event
-                                                                               :editor-input  (-> @refs-atom :editor-input)
-                                                                               :editor-area   (-> @refs-atom :editor-area)
+                                   (let [{:keys [observer]} (setup-listeners! {:state          state
+                                                                               :trigger-event  trigger-event
+                                                                               :editor-input   (-> @refs-atom :editor-input)
+                                                                               :editor-area    (-> @refs-atom :editor-area)
+                                                                               :on-text-change on-text-change
                                                                                })]
                                      (reset! resize-atom [observer (-> @refs-atom :editor-area)]))))
-       :reagent-render         (fn [{:keys [style max-editor-height on-text-change]}]
+       :reagent-render         (fn [{:keys [style max-editor-height]}]
                                  (let [{:keys [buffer selections char-width cursor keys-down] :as state} (get-state editor-atom)
                                        current-row (y->row-index state (:y cursor))
                                        flatten-buffer (flatten buffer)]
@@ -1678,7 +1690,6 @@
                                          ])]
                                      [config-bar {:config        (:config state)
                                                   :trigger-event trigger-event
-                                                  :id            "config"}]
-                                     ]
+                                                  :id            "config"}]]
                                     ]))})))
 

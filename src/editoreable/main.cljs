@@ -11,10 +11,11 @@
     [:div {:style {
                    :display         "flex"
                    :margin-top      "200px"
-                   :flex-direction "column"
+                   :flex-direction  "column"
                    :align-items     "center"
                    :justify-content "center"}}
-     [editor {:style {:min-width "500px"}}]]
+     [editor {:style          {:min-width "500px"}
+              :on-text-change (fn [txt] (println txt))}]]
 
     (interop/get-element-by-id "app")))
 
