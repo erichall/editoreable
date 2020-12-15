@@ -1,40 +1,46 @@
-# editoreable
+# Web Text Editor ![jenkins-build-status](https://byggarn.erkanp.dev/job/editoreable/badge/icon "")
 
-FIXME: Write a one-line description of your library/project.
+A basic text editor for the web, built with [Clojurescript](https://clojurescript.org/).
 
-## Overview
+# Motivation
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+An attempt to build a text editor from bare divs for fun and learning!
 
-## Setup
+# Usage
+```clojure
+(ns rock-and-roll-ns.main
+  (:require [reagent.dom :as rd]
+            [editoreable.core :refer [editor]]
+            ))
 
-To get an interactive development environment run:
+(defn render
+  []
+  (rd/render
+    [:div {:style {:display         "flex"
+                   :flex-direction  "column"
+                   :align-items     "center"
+                   :justify-content "center"}}
+     [editor {:on-text-change (fn [txt] (println txt))}]]))
 
-    npm install
-    lein figwheel
+(defn init! []
+  (render))
+```
 
-and open your browser at [localhost:3449](http://localhost:3449/).
-This will auto compile and send all changes to the browser without the
-need to reload. After the compilation process is complete, you will
-get a Browser Connected REPL. An easy way to try it is:
+# Demo
+![](demo.gif)
 
-    (js/alert "Am I connected?")
+# Q^A
+### Does it work?
+Kinda.
 
-and you should see an alert in the browser window.
+### On mobile?
+Not yet! 
 
-To clean all compiled files:
+### IE? 
+NO!
 
-    lein clean
+### Should you use it?
+For your own safety, probably not. 
 
-To create a production build run:
 
-    lein do clean, cljsbuild once min
 
-And open your browser in `resources/public/index.html`. You will not
-get live reloading, nor a REPL. 
-
-## License
-
-Copyright © 2014 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
