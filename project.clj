@@ -15,7 +15,6 @@
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
 
   :source-paths ["src"]
-  :test-paths ["test"]
 
   :cljsbuild {:builds
               [{:id           "dev"

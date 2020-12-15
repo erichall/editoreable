@@ -74,7 +74,6 @@
             :width  (.-width r)
             :x      (.-x r)
             :y      (.-y r)}) rects)))
-(def document js/document)
 (defn select-node-contents [range node] (js-invoke range "selectNodeContents" node))
 (defn inner-html [el] (.-innerHTML el))
 (defn is-nan? [x] (js/isNaN x))

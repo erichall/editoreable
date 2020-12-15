@@ -64,13 +64,9 @@
        tab->space
        count))
 
-(deftest po00p
-  (is (= 4 2)))
-
 (defn diff-buffer-len
   "Diffs two buffers and return how much the length differs only."
   {:test (fn []
-           (is (= 2 3))
            (is (= (diff-buffer-len [["a"]] [[""]]) 1))
            (is (= (diff-buffer-len [[""]] [[""]]) 0))
            (is (= (diff-buffer-len [["1"]] [["1234" "5"]]) -5)))}

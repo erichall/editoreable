@@ -10,11 +10,9 @@
                        :target     :browser
                        :modules    {:main {:init-fn editoreable.main/init!}}
                        :devtools   {:after-load editoreable.main/reload!}}
-                :test {:target    :browser-test
+
+                :test {:target    :node-test
                        :output-to "out/node-tests.js"
                        :runner-ns editoreable.test-all
-                       :devtools  {:http-port          8021
-                                   :http-root          "resources/public/test"}
-                       ;:ns-regexp "editoreable"
-                       ;:modules      {:main {:init-fn test.all/test-core}}
+                       :main      editoreable.test-all/init
                        }}}
