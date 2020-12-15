@@ -7,11 +7,18 @@ A basic text editor for the web, built with [Clojurescript](https://clojurescrip
 An attempt to build a text editor from bare divs for fun and learning!
 
 # Usage
+In your shadow-cljs.edn
+```clojure
+:dependencies [
+                ...
+                [editoreable "0.1.0-SNAPSHOT"]
+                ]
+```
+
 ```clojure
 (ns rock-and-roll-ns.main
   (:require [reagent.dom :as rd]
-            [editoreable.core :refer [editor]]
-            ))
+            [editoreable.core :refer [editor]]))
 
 (defn render
   []
