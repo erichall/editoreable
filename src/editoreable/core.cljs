@@ -1461,8 +1461,7 @@
         char-width (-> (interop/get-element-by-id "ruler")
                        interop/get-bounding-client-rect
                        :width)
-        _ (remove-ruler!)
-        ]
+        _ (remove-ruler!)]
     char-width))
 
 (defn config-item
