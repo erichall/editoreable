@@ -2,9 +2,12 @@
 
 A basic text editor for the web, built with [Clojurescript](https://clojurescript.org/).
 
+Live demo at [editoreable.erkanp.dev](https://editoreable.erkanp.dev)
+
 # Motivation
 
 An attempt to build a text editor from bare divs for fun and learning!
+Live demo at [editoreable.erkanp.dev](https://editoreable.erkanp.dev)
 
 # Usage
 In your shadow-cljs.edn
