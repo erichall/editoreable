@@ -799,7 +799,6 @@
                            (= (select-keys state keys-of-interest) current-state))) states-wlast)
          count
          inc                                                ;; inc to include the current state
-         ;(#(do (println "Removing the last..." % " states") %))
          (#(drop-last % states))
          (into []))))
 
@@ -976,7 +975,6 @@
                  :buffer-cord cord})) selection-list)
        (assoc state :selections)))
 
-
 (defn select-all
   [{:keys [char-width] :as state}]
   (let [last-row (last-row state)
@@ -1050,9 +1048,7 @@
    handle-char-key
 
    (mapv (fn [a] #{:Shift (keyword (char a))}) (range 32 127))
-   handle-char-key
-
-   ])
+   handle-char-key])
 
 (defn process-key-down
   [state {:keys [keys-down trigger-event]}]
@@ -1123,9 +1119,6 @@
 (defn dist-to-origin
   [{:keys [x y]}]
   (Math/sqrt (+ (Math/pow x 2) (Math/pow y 2))))
-
-
-
 
 (defn process-mouse-move
   [{:keys [styles] :as state} {:keys [js-evt]}]
