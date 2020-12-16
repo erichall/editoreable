@@ -1241,7 +1241,6 @@
      :toggle-toolbar (mutate! editor-atom toggle-config :show-toolbar)
 
      :inject-styles (do (doseq [[id style] (:styles data)]
-                          (println "ID" id data)
                           (interop/inject-style! id style))
                         (mutate! editor-atom (fn [state] (assoc state :injected-styles? true))))
      :editor-area-resize (mutate! editor-atom process-resize data)
