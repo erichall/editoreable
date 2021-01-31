@@ -5,9 +5,7 @@
     [cljs.core.async :as async]
     [editoreable.interop :as interop]
     [editoreable.icons :refer [undo-icon redo-icon insert-link-icon bold-icon italic-icon misc-icon]]
-    [cljs.test :refer [deftest is]]
-    )
-  )
+    [cljs.test :refer [deftest is]]))
 
 
 (enable-console-print!)
@@ -45,8 +43,7 @@
                                      :selection-color     "#B5D5FF"
                                      :active-row-bg-color "#ecece7"
                                      }}]
-   :undo-states []
-   })
+   :undo-states []})
 
 (defn tab->space
   [s]
