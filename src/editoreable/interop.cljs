@@ -65,8 +65,7 @@
 (defn get-client-rects [range]
   (let [rects (array-seq (.getClientRects range))]
     (map (fn [r]
-           {
-            :bottom (.-bottom r)
+           {:bottom (.-bottom r)
             :height (.-height r)
             :left   (.-left r)
             :right  (.-right r)
@@ -119,5 +118,4 @@
        flatten
        (filter (fn [a] (= style-name (.-name a))))
        count
-       (#(> % 0))
-       ))
+       (#(> % 0))))
